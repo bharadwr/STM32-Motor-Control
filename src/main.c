@@ -23,6 +23,9 @@
 bool chkOpenNode(int, int);
 bool chkClosedNode(int, int);
 
+int speed = 1;
+int forward = 10;
+int lr = 10;
 int globalDir;
 
 int directions[36 * 4] = {0};
@@ -186,8 +189,15 @@ void testRun()
 	B();
 	L();
 	R();
-
 	testLED();
+	/*
+	 * if (forward > 0)
+	 * 	F(forward);
+	 * if (lr > 0)
+	 *	L(lr);
+	 * if (lr < 0)
+	 *  R(lr);
+	 */
 }
 
 void testLED(void)
@@ -202,8 +212,6 @@ void testLED(void)
 void initPA0()
 {
 	GPIOA -> MODER &= ~0x11;
-
-
 }
 
 
@@ -298,16 +306,22 @@ void init_pwm2(void)
 	TIM1->CR1 |= TIM_CR1_CEN;
 }
 
-void F(void)
+void F(int distance)
 {
-	TIM1->CCR1 = 99;
-	TIM1->CCR2 = 99;
+	TIM1->CCR1 = 49 + 10 * speed;
+	TIM1->CCR2 = 49 + 10 * speed;
 
 	GPIOA->BSRR |= 1<<5 | 1<<7;
 	GPIOA->BRR |= 1<<4 | 1<<6;
 
-	for(int i=0; i<10; i++)
+	for(int i=0; i<10; i++) {
+		/*if (read the hall value is not 0)
+		 *	increment distance
+		 *if (distance >= F/B distance)
+		 *	break
+		*/
 		nano_wait(250*1000*1000);//enter time to go forward
+	}
 	TIM1->CCR1 = 0;
 	TIM1->CCR2 = 0;
 	GPIOA->BRR |= 1<<4 | 1<<5 | 1<<6 | 1<<7;
@@ -315,14 +329,24 @@ void F(void)
 
 void B(void)
 {
-	TIM1->CCR1 = 99;
-	TIM1->CCR2 = 99;
+	TIM1->CCR1 = 49 + 10 * speed;
+	TIM1->CCR2 = 49 + 10 * speed;
 
 	GPIOA->BSRR |= 1<<4 | 1 << 6;
 	GPIOA->BRR |= 1<<5 | 1<<7 ;
 
-	for(int i=0; i<10; i++)
+	for(int i=0; i<10; i++) {
+		/*if (read the hall value is not 0)
+		 *	increment distance
+		 *if (distance >= F/B distance)
+		 *	break
+		*/
+		/* if (ir is high)
+		 * 	exit(0);
+		 */
 		nano_wait(250*1000*1000);//enter time to go forward
+	}
+
 	TIM1->CCR1 = 0;
 	TIM1->CCR2 = 0;
 	GPIOA->BRR |= 1<<4 | 1<<5 | 1<<6 | 1<<7;
@@ -330,8 +354,8 @@ void B(void)
 
 void R(void)
 {
-	TIM1->CCR1 = 99;
-	TIM1->CCR2 = 99;
+	TIM1->CCR1 = 75;
+	TIM1->CCR2 = 75;
 
 	GPIOA->BSRR |= 1<<5 | 1<<6;
 	GPIOA->BRR |= 1<<4 | 1<<7;
@@ -345,8 +369,8 @@ void R(void)
 
 void L(void)
 {
-	TIM1->CCR1 = 99;
-	TIM1->CCR2 = 99;
+	TIM1->CCR1 = 75;
+	TIM1->CCR2 = 75;
 
 	GPIOA->BSRR |= 1<<4 | 1<<7;
 	GPIOA->BRR |= 1<<5 | 1<<6;
