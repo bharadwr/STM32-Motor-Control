@@ -274,25 +274,25 @@ void prob4(void) {
 // (these four pins connected to the rows will being scanned
 // to determine the row of a button press).
 void init_keypad() {
-	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-	GPIOA->MODER &= ~(0b11111111);
-	GPIOA->MODER |= 0b01010101;
-	GPIOA->MODER &= ~(3 << 8);
-	//GPIOA->MODER |= 2 << 8;
-	GPIOA->MODER &= ~(3 << 10);
-	//GPIOA->MODER |= 2 << 10;
-	GPIOA->MODER &= ~(3 << 12);
-	//GPIOA->MODER |= 2 << 12;
-	GPIOA->MODER &= ~(3 << 14);
-	//GPIOA->MODER |= 2 << 14;
-	GPIOA->PUPDR &= ~(3 << 8);
-	GPIOA->PUPDR |= 2 << 8;
-	GPIOA->PUPDR &= ~(3 << 10);
-	GPIOA->PUPDR |= 2 << 10;
-	GPIOA->PUPDR &= ~(3 << 12);
-	GPIOA->PUPDR |= 2 << 12;
-	GPIOA->PUPDR &= ~(3 << 14);
-	GPIOA->PUPDR |= 2 << 14;
+	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+	GPIOB->MODER &= ~(0b11111111);
+	GPIOB->MODER |= 0b01010101;
+	GPIOB->MODER &= ~(3 << 8);
+	//GPIOB->MODER |= 2 << 8;
+	GPIOB->MODER &= ~(3 << 10);
+	//GPIOB->MODER |= 2 << 10;
+	GPIOB->MODER &= ~(3 << 12);
+	//GPIOB->MODER |= 2 << 12;
+	GPIOB->MODER &= ~(3 << 14);
+	//GPIOB->MODER |= 2 << 14;
+	GPIOB->PUPDR &= ~(3 << 8);
+	GPIOB->PUPDR |= 2 << 8;
+	GPIOB->PUPDR &= ~(3 << 10);
+	GPIOB->PUPDR |= 2 << 10;
+	GPIOB->PUPDR &= ~(3 << 12);
+	GPIOB->PUPDR |= 2 << 12;
+	GPIOB->PUPDR &= ~(3 << 14);
+	GPIOB->PUPDR |= 2 << 14;
 }
 
 // This function should enable clock to timer 3, setup the timer
@@ -316,21 +316,21 @@ void setup_timer3() {
 void TIM3_IRQHandler()
 {
 	int current_row = -1;
-	//int why_tho = GPIOA->IDR;
+	//int why_tho = GPIOB->IDR;
 
-	if((GPIOA->IDR & (1<<4)) == (1<<4))
+	if((GPIOB->IDR & (1<<4)) == (1<<4))
 	{
 		current_row = 0;
 	}
-	if((GPIOA->IDR & (1<<5)) == (1<<5))
+	if((GPIOB->IDR & (1<<5)) == (1<<5))
 	{
 		current_row = 1;
 	}
-	if((GPIOA->IDR & (1<<6)) == (1<<6))
+	if((GPIOB->IDR & (1<<6)) == (1<<6))
 	{
 		current_row = 2;
 	}
-	if((GPIOA->IDR & (1<<7)) == (1<<7))
+	if((GPIOB->IDR & (1<<7)) == (1<<7))
 	{
 		current_row = 3;
 	}
@@ -342,7 +342,7 @@ void TIM3_IRQHandler()
 		col = 0;
 	}
 
-	GPIOA->ODR = 1 << col;
+	GPIOB->ODR = 1 << col;
 	TIM3->SR &= ~TIM_SR_UIF;
 
 }
