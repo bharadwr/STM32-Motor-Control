@@ -125,7 +125,7 @@ void ultrasonic_setup_10_11(){
 
 	//change to 8 and 9
 
-	//OUTPUT MODE FOR GPIOC           //TRIG PC4
+	//OUTPUT MODE FOR GPIOC           //TRIG PC11
 	GPIOC->MODER &= ~(0X3 << (11 * 2)); //ORGINIALLY PB5
 	GPIOC->MODER |=  (0X1 << (11 * 2));
 	//PUSH-PULL PUSH PULL
@@ -134,7 +134,7 @@ void ultrasonic_setup_10_11(){
 	GPIOC->OSPEEDR |= (0X3 << (11 * 2));
 
 
-	//INPUT MODE FOR GPIOA             //ECHO PC3
+	//INPUT MODE FOR GPIOA             //ECHO PC10
 	GPIOC->MODER &= ~(0X3 << (10 * 2)); //ORGINALLY PA3
 	//A PUPDR
 	GPIOC->PUPDR &= ~(0X3 << (10 * 2));
@@ -175,7 +175,7 @@ void ultrasonic_10_11(){
 	dist_sensor1 = dist;
 	char buf[20];
 	itoa(dist, buf, 10);
-	//display1("test1");
+	//display2(buf);
 
 	if (dist >= 0){
 		//display1(buf);
@@ -227,10 +227,9 @@ void TIM15_IRQHandler(void) {
 	display2(snum);
 	ultrasonic_10_11();
 
-
 	count += 1;
-	//if ((dist_sensor1 >= 2000 |dist_sensor2 >= 2000 | dist_sensor1 <= 20 | dist_sensor2 <= 20) & count > 5){
-	if ((dist_sensor1 >= 2000 | dist_sensor1 <= 20) & count > 5){
+
+	if ((dist_sensor1 >= 2000 | dist_sensor1 <= 20) & count > 5) {
 		display1("Run obstructed");
 		display2("Press reset");
 		TIM1->CCR1 = 0;
@@ -250,11 +249,10 @@ void tim15_init(void){
 
 void F(int distance)
 {
-	TIM1->CCR1 = 20 + 10 * speed;
-	TIM1->CCR2 = 20 + 10 * speed;
+	TIM1->CCR1 = 42 + 10 * speed;
+	TIM1->CCR2 = 40 + 10 * speed;
 	GPIOA->BSRR |= 1<<4 | 1 << 6;
 	GPIOA->BRR |= 1<<5 | 1<<7 ;
-	int count = 0;
 	tim15_init();
 	test_dist = distance;
 	runflag = 0;
@@ -269,11 +267,10 @@ void F(int distance)
 
 void B(int distance)
 {
-	TIM1->CCR1 = 20 + 10 * speed;
-	TIM1->CCR2 = 20 + 10 * speed;
+	TIM1->CCR1 = 40 + 10 * speed;
+	TIM1->CCR2 = 40 + 10 * speed;
 	GPIOA->BSRR |= 1<<5 | 1<<7;
 	GPIOA->BRR |= 1<<4 | 1<<6;
-	int count = 0;
 	tim15_init();
 	test_dist = distance;
 	runflag = 0;
@@ -288,14 +285,14 @@ void B(int distance)
 
 void L(void)
 {
-	TIM1->CCR1 = 44;
-	TIM1->CCR2 = 44;
+	TIM1->CCR1 = 40;
+	TIM1->CCR2 = 40;
 
 	GPIOA->BSRR |= 1<<5 | 1<<6;
 	GPIOA->BRR |= 1<<4 | 1<<7;
 
 	for(int i=0; i<5; i++)
-		nano_wait(250*1000*1000);//enter time to go forward
+		nano_wait(237*1000*1000);
 
 	TIM1->CCR1 = 0;
 	TIM1->CCR2 = 0;
@@ -304,13 +301,13 @@ void L(void)
 
 void R(void)
 {
-	TIM1->CCR1 = 44;
-	TIM1->CCR2 = 44;
+	TIM1->CCR1 = 40;
+	TIM1->CCR2 = 40;
 
 	GPIOA->BSRR |= 1<<4 | 1<<7;
 	GPIOA->BRR |= 1<<5 | 1<<6;
 	for(int i=0; i<5; i++)
-		nano_wait(250*1000*1000);//enter time to go forward
+		nano_wait(237*1000*1000);
 	TIM1->CCR1 = 0;
 	TIM1->CCR2 = 0;
 	GPIOA->BRR |= 1<<4 | 1<<5 | 1<<6 | 1<<7;
@@ -376,14 +373,14 @@ void update_samples(int row) {
 void get_coordinates() {
 	int freq = 0;
 	int pos = 3;
-	char line1[16] = "X: __, Y: __";
+	char line1[16] = "X: _, Y: _ ft";
 	display1(line1);
-	while(pos < 5) {
+	while(pos < 4) {
 		char key = get_char_key();
 		if(key != '\0') {
 			if (key == 'D') {
 				if (line1[2] != '-')
-					line1[2] = ' ';
+					line1[2] = '-';
 				else
 					line1[2] = ' ';
 			}
@@ -404,8 +401,8 @@ void get_coordinates() {
 		}
 		display1(line1);
 	}
-	pos = 10;
-	while(1 && pos < 12) {
+	pos = 9;
+	while(1 && pos < 10) {
 		char key = get_char_key();
 		if(key != '\0') {
 			if (key == 'D') {
@@ -431,8 +428,8 @@ void get_coordinates() {
 		}
 		display1(line1);
 	}
-	fb = 10 * (line1[3] - '0') + (line1[4] - '0');
-	lr = 10 * (line1[10] - '0') + (line1[11] - '0');
+	fb = 10 * (line1[3] - '0');
+	lr = 10 * (line1[9] - '0');
 	if (line1[2] == '-')
 		fb *= -1;
 	if (line1[9] == '-')
@@ -442,7 +439,7 @@ void get_coordinates() {
 void get_speed() {
 	int freq = 0;
 	int pos = 7;
-	char line2[16] = "Speed: _ (1 - 5)";
+	char line2[16] = "Speed: _ (1 - 3)";
 	display2(line2);
 	while(pos < 8) {
 		char key = get_char_key();
@@ -451,8 +448,6 @@ void get_speed() {
 			case '1' : line2[pos] = key; pos++; break;
 			case '2' : line2[pos] = key; pos++; break;
 			case '3' : line2[pos] = key; pos++; break;
-			case '4' : line2[pos] = key; pos++; break;
-			case '5' : line2[pos] = key; pos++; break;
 			}
 		}
 		display2(line2);
@@ -539,7 +534,7 @@ void TIM3_IRQHandler()
 
 }
 
-int main(void)
+void run(void)
 {
 	init_lcd();
 	init_keypad();
@@ -588,10 +583,14 @@ int main(void)
 		itoa(fb, snum, 10);
 		display1("Backward");
 		display2(snum);
-		B(-fb);
+		R();
+		nano_wait(1000000000);
+		R();
+		nano_wait(1000000000);
+		F(-fb);
 	}
 	nano_wait(10000000000);
-	if (lr <= 0) {
+	if (lr < 0) {
 		itoa(lr, snum, 10);
 		display1("Left");
 		display2(snum);
@@ -613,4 +612,8 @@ int main(void)
 	testLED();
 	display1("Run Finished");
 	display2("Press reset");
+}
+
+int main(void) {
+	run();
 }
